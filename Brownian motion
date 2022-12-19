@@ -1,0 +1,35 @@
+AQI.data<- read.csv(file = "C:/Users/14246/Desktop/AQI.csv",
+                      ,header=TRUE, sep=",")
+day<- AQI.data$day
+AQI<- AQI.data$AQI
+plot(day, AQI, type="l", lwd=5, cex=0, col="green", xlab="Days", ylab="Air Quality Index")
+#################################################
+#computing increments of log-AQI
+log.inc<- c() 
+AQI1<- AQI[-1]
+AQI1.lag<- head(AQI, -1)
+log.inc<- log(AQI1/AQI1.lag)
+#estimating parameters drift and volatility 
+
+print(mu.hat<- mean(log.inc))
+
+print(sigma.hat<- sd(log.inc))
+###################################################################
+
+set.seed(567843)
+
+
+#specifying geometric Brownian motion as vector
+GBM<- c()
+#specifying Brownian initial value
+GBM[1]<- AQI[1]
+
+#simulating 2 trajectorys 
+for (i in 2:100)
+  GBM[i]<-GBM[i-1]*exp(mu.hat+sigma.hat*rnorm(1))
+#plotting 
+plot(day, AQI, type="l", lwd=3, cex=0, col="orange", ylim=range(GBM), xlab="Days",
+     ylab="Air Quality Index")
+lines(day, GBM, lwd=2, col="green")
+legend("topright", c("Actual Air Quality Index", "Simulated Air Quality Index"), lty=1, lwd=3,
+       col=c("orange", "green"))
